@@ -71,7 +71,7 @@ Particle.prototype.combine_with = function(p) {
 };
 
 var Universe = function() {
-    this.gravity =  0.05;
+    this.gravity =  0.03;
     this.particles = [];
 };
 
@@ -130,7 +130,7 @@ var Forge = function() {
 
 Forge.prototype.create = function() {
     return new Particle(
-        random(0,50) ,
+        random(0,5) ,
         new Location(
             random(0,400),
             random(0,400) ,
@@ -142,7 +142,7 @@ Forge.prototype.create = function() {
 
 var AccretionModel = function(u) {
     this.universe = u;
-    this.combination_distance = 1;
+    this.combination_distance = 2;
 };
 
 AccretionModel.prototype.step = function() {
@@ -151,15 +151,21 @@ AccretionModel.prototype.step = function() {
 
     universe.traverse(function(px) {
         universe.traverse(function(py) {
-            if ( px.position.distance_to(py.position).magnitude() < model.combination_distance ) {
-                //    debug(px.position.distance_to(py.position).magnitude());
-
-                //          px.combine_with(py);
-                //        return true;
+            if ( px === py ) {
+                return;
             }
-            //    else {
-            //        px.accelerate(universe.attraction_between(px, py));
-            //    }
+            var distance = px.position.distance_to(py.position).magnitude();
+            if ( distance < model.combination_distance ) {
+                debug( px.position );
+                debug ( py.position );
+                debug(distance);
+
+                px.combine_with(py);
+                return true;
+            }
+            else {
+                px.accelerate(universe.attraction_between(px, py));
+            }
         });
     });
 
@@ -175,7 +181,7 @@ var renderer = new UniverseRenderer(universe);
 
 var init = function() {
     frameRate(25);
-    for ( var i = 0 ; i <5 ; i++ ) {
+    for ( var i = 0 ; i <10 ; i++ ) {
         universe.add(forge.create());
     }
 };
